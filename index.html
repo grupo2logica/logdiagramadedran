@@ -13,11 +13,32 @@
             -webkit-tap-highlight-color:transparent;
         }
 
+        /* CONFIGURAÇÃO DA BARRA DE ROLAGEM LATERAL FINA */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #0a0a0a;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #333;
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #444;
+        }
+
         html {
             width: 100%;
             background:#000;
             margin:0;
             padding:0;
+            scrollbar-width: thin;
+            scrollbar-color: #333 #0a0a0a;
         }
 
         body{
@@ -400,7 +421,7 @@
             document.getElementById('info-box').style.display = 'none';
         }
 
-        // DESIGNAÇÃO DE FORÇA MÁXIMA: Neutraliza qualquer bloqueio que venha do arquivo sketch.js externo
+        // REMOÇÃO AUTOMÁTICA DOS BLOQUEIOS DE TOUCH DO P5.JS 
         window.onload = function() {
             window.touchMoved = function() { return true; };
             window.touchStarted = function() { return true; };
@@ -417,6 +438,7 @@
             return true; 
         }, { passive: true });
 
+        // CONTROLE HÍBRIDO TOQUE/CLIQUE PARA MOBILE
         document.addEventListener("DOMContentLoaded", function() {
             const mapearBotoesMovel = () => {
                 const botoes = document.querySelectorAll("button, .log-item");
@@ -436,6 +458,7 @@
                             let endY = e.changedTouches[0].clientY;
                             let endX = e.changedTouches[0].clientX;
                             
+                            // Se arrastar o dedo para rolar a tela, cancela a ação do botão e deixa a barra correr
                             if (Math.abs(startY - endY) > 8 || Math.abs(startX - endX) > 8) {
                                 return; 
                             }
