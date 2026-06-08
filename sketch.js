@@ -1761,6 +1761,17 @@ function inverterPonto(id){
 
 
 function negarExpressaoInteira(){
+   
+    // BLOQUEIO: Se houver apenas uma proposição simples (1 clique) e nenhum conectivo, impede a negação completa
+    if (ordemCliques.length === 1 && !conectivoSelecionado) {
+        alert("Não é possível negar a expressão completa se houver apenas uma proposição simples isolada.");
+        return;
+    }
+
+    // Se a validação passar, o resto do seu código existente continua aqui abaixo...
+    // ex: if(ordemCliques.length < 1) { ... }
+    // seu código atual que faz a negação da expressão...
+
 
     let distribuiuNegacao = false;
 
