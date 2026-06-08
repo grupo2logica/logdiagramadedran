@@ -875,335 +875,172 @@ function calcularResultadoEstrutural(fatiaAtual, inverterPrimeira){
 
 
 function obterExpressaoHTMLColorida(fatiaAtual, camadaAtual, isSegundaCamadaInterna) {
-
     if(ordemCliques.length === 0) return "";
 
-
-
     let id1 = ordemCliques[0];
-
     let corVerde = "#2ecc71";
-
     let corVermelha = "#e74c3c";
-
     let mapaComposta = { AND: "∧", OR: "∨", IF: "→", IFF: "↔", XOR: "⊻" };
 
-
-
     // Identifica se estamos avaliando a subcamada analítica interna (Camada 2 de Dran)
-
     let isInterna = (camadaAtual === 2 || isSegundaCamadaInterna);
 
-
-
     // =========================================================================
-
     // TRATAMENTO PARA PROPOSIÇÃO COMPOSTA REGISTRADA (A. (p e q))
-
     // =========================================================================
-
     // =========================================================================
-
     // TRATAMENTO PARA PROPOSIÇÃO COMPOSTA REGISTRADA (A. (p e q))
-
     // =========================================================================
-
     if(pontos[id1].isCompostaHistorico) {
-
         let p1 = pontos[id1];
-
        
-
         let pVal;
-
         if (!isInterna) {
-
             // Se estiver na Camada 1 da subestrutura, mantém o valor estável original
-
             pVal = getValorLogicoFatia(p1.fFalsaOrigem);
-
         } else {
-
             // Se o cursor estiver no trajeto da Camada 2, inverte o valor para demonstrar as variáveis
-
             pVal = !getValorLogicoFatia(p1.fFalsaOrigem);
-
         }
-
        
-
         let qVal = getValorLogicoFatia(fatiaAtual);
-
         let rComposta = calcularOperacao(pVal, qVal, p1.operacaoOrigem);
-
         if(p1.negarGeralOrigem) rComposta = !rComposta;
 
-
-
         let textoLimpo = p1.rotuloOriginal.replace(/^\(|\)$/g, '');
-
         let partes = textoLimpo.split(/\s*[∧∨→↔⊻]\s*/);
-
         let pStr = partes[0] ? partes[0].trim() : "p";
-
         let qStr = partes[1] ? partes[1].trim() : "q";
-
-
 
         let opSimboloOriginal = mapaComposta[p1.operacaoOrigem] || " ";
 
-
-
-        // Blindagem estrita de cores: variáveis fixas em seus valores individuais nesta camada
-
+        // Blindagem estrita de cores: variables fixas em seus valores individuais nesta camada
         let corP = pVal ? corVerde : corVermelha;
-
         let corQ = qVal ? corVerde : corVermelha;
-
         let corOpOrig = rComposta ? corVerde : corVermelha;
 
-
-
         let compostaHTML = `<span style="color:${corOpOrig}">(</span><span style="color:${corP}">${pStr}</span><span style="color:${corOpOrig}"> ${opSimboloOriginal} </span><span style="color:${corQ}">${qStr}</span><span style="color:${corOpOrig}">)</span>`;
-
         if(p1.negarGeralOrigem) compostaHTML = `<span style="color:${corOpOrig}">¬</span>` + compostaHTML;
 
-
-
         // === CORREÇÃO DE PRIORIDADE: DESTRAVA O CURSOR E A EXPRESSÃO DINÂMICA ===
-
         // Agora prioriza a variável global 'operacao'. Se você mudar o conectivo no painel,
-
         // o cursor e a caixa de texto responderão dinamicamente em tempo real!
-
         let opAtual = operacao || p1.operacaoOrigem;
-
         let negGeralAtual = negarGeral;
 
-
-
         if (ordemCliques.length === 1 && (conectivoSelecionado || p1.operacaoOrigem)) {
-
             let rFinal = calcularOperacao(rComposta, rComposta, opAtual);
-
             if(negGeralAtual) rFinal = !rFinal;
-
             let corEstrutura = rFinal ? corVerde : corVermelha;
-
             let opAtualSimbolo = mapaComposta[opAtual] || " ";
 
-
-
-            let resultadoHTML = `<span style="color:${corEstrutura}">[</span>${compostaHTML}<span style="color:${corEstrutura}"> ${opAtualSimbolo} </span>${compostaHTML}<span style="color:${corEstrutura}">] = ${rFinal ? 'V' : 'F'}</span>`;
-
+            // AQUI: Trocado [ por ( e ] por )
+            let resultadoHTML = `<span style="color:${corEstrutura}">(</span>${compostaHTML}<span style="color:${corEstrutura}"> ${opAtualSimbolo} </span>${compostaHTML}<span style="color:${corEstrutura}">) = ${rFinal ? 'V' : 'F'}</span>`;
             if(negGeralAtual) resultadoHTML = `<span style="color:${corEstrutura}">¬</span>` + resultadoHTML;
-
             return resultadoHTML;
-
         }
-
-
 
         let corEstrutura = rComposta ? corVerde : corVermelha;
-
         let htmlResultado = `<span style="color:${corEstrutura}">(</span><span style="color:${corP}">${pStr}</span><span style="color:${corOpOrig}"> ${opSimboloOriginal} </span><span style="color:${corQ}">${qStr}</span><span style="color:${corEstrutura}">) = ${rComposta ? 'V' : 'F'}</span>`;
-
         if(p1.negarGeralOrigem) htmlResultado = `<span style="color:${corEstrutura}">¬</span>` + htmlResultado;
-
         return htmlResultado;
-
     }
-
    
-
     // =========================================================================
-
     // TRATAMENTO PARA PROPOSIÇÃO SIMPLES (CORREÇÃO DE EXIBIÇÃO DO SÍMBOLO ¬)
-
     // =========================================================================
-
     let p1 = pontos[id1];
-
    
-
     // Identifica se o ponto guardado no diagrama já está negado (ex: começou com ¬ no ID ou foi espelhado)
-
     let p1EstaNegado = id1.startsWith("¬") || (p1 && p1.fFalsaOrigem !== undefined && p1.negarGeralOrigem);
-
    
-
     // Formata o rótulo base da letra (ex: se id1 for "¬P", a base vira "p")
-
     let letraBaseP = id1.replace("¬", "").toLowerCase();
-
    
-
     // Monta o rótulo final do primeiro termo adicionando o ¬ se ele estiver negado
-
     let rotuloP = p1EstaNegado ? `¬${letraBaseP}` : letraBaseP;
 
-
-
     let opAtual = operacao;
-
     let negGeralAtual = negarGeral;
-
     let temConectivo = conectivoSelecionado;
 
-
-
     if(ordemCliques.length === 1){
-
         // CASO 1: Apenas 1 clique sem conectivo ativo (exibição simples)
-
         if(!temConectivo) {
-
             let pVal = getValorLogicoFatia(fatiaAtual);
-
             let valorFinal = pVal;
-
             if(negGeralAtual) valorFinal = !valorFinal;
-
            
-
             let corP = pVal ? corVerde : corVermelha;
-
             let corEstrutura = valorFinal ? corVerde : corVermelha;
-
            
-
             // Se o ponto individual já está negado no mapa, reflete no texto
-
             return `<span style="color:${corEstrutura}">${negGeralAtual ? '¬' : ''}</span><span style="color:${corP}">${rotuloP}</span><span style="color:${corEstrutura}"> = ${valorFinal ? 'V' : 'F'}</span>`;
-
         }
-
-
 
         // CASO 2: 1 clique + Conectivo Ativo (Auto-cruzamento: p vs p OU p vs ¬p)
-
         let valores = obterValoresUnarios(id1, fatiaAtual);
-
         let r = calcularOperacao(valores.valorA, valores.valorB, opAtual);
-
         if(negGeralAtual) r = !r;
 
-
-
         let corA = valores.valorA ? corVerde : corVermelha;
-
         let corB = valores.valorB ? corVerde : corVermelha;
-
         let corOp = r ? corVerde : corVermelha;
-
         let opSimbolo = mapaComposta[opAtual] || " ";
 
-
-
         // Regra essencial: Determina os termos baseado no botão de Negação Manual
-
         let termoA = rotuloP;
-
         let termoB = rotuloP;
 
-
-
         if (modoNegacaoManual) {
-
             // Se o botão "¬" está ativo no painel, o segundo termo ganha o ¬ obrigatoriamente
-
             // Se termoA já era "¬p", termoB vira "¬¬p" para clareza lógica, ou simplesmente aplica o inverso
-
             termoB = id1.startsWith("¬") ? letraBaseP : "¬" + rotuloP;
-
         } else if (id1.startsWith("¬")) {
-
             // Se o ponto já foi fixado como negado anteriormente, o auto-cruzamento padrão espelha a lógica
-
             termoA = rotuloP;
-
             termoB = rotuloP;
-
         }
 
-
-
-        let str = `<span style="color:${corOp}">[</span><span style="color:${corA}">${termoA}</span><span style="color:${corOp}"> ${opSimbolo} </span><span style="color:${corB}">${termoB}</span><span style="color:${corOp}">] = ${r ? 'V' : 'F'}</span>`;
-
+        // AQUI: Trocado [ por ( e ] por )
+        let str = `<span style="color:${corOp}">(</span><span style="color:${corA}">${termoA}</span><span style="color:${corOp}"> ${opSimbolo} </span><span style="color:${corB}">${termoB}</span><span style="color:${corOp}">) = ${r ? 'V' : 'F'}</span>`;
         if(negGeralAtual) str = `<span style="color:${corOp}">¬</span>` + str;
-
         return str;
-
     }
-
-
 
     // CASO 3: Dois cliques na tela operando entre si (ex: p e q)
-
     let id2 = ordemCliques[1];
-
     let p2 = pontos[id2];
-
     if (!p2) return "";
 
-
-
     // Identifica se o segundo ponto está negado
-
     let p2EstaNegado = id2.startsWith("¬");
-
     let letraBaseQ = id2.replace("¬", "").toLowerCase();
-
     let rotuloQ = p2EstaNegado ? `¬${letraBaseQ}` : letraBaseQ;
-
    
-
     let opSimbolo = mapaComposta[opAtual] || " ";
 
-
-
     let pVal, qVal;
-
     if (!isInterna) {
-
         pVal = getValorLogicoFatia(p1.f);
-
         qVal = getValorLogicoFatia(fatiaAtual);
-
     } else {
-
         pVal = !getValorLogicoFatia(p1.f);
-
         qVal = getValorLogicoFatia(fatiaAtual);
-
     }
 
-
-
     let r = calcularOperacao(pVal, qVal, opAtual);
-
     if(negGeralAtual) r = !r;
 
-
-
     let corA = pVal ? corVerde : corVermelha;
-
     let corB = qVal ? corVerde : corVermelha;
-
     let corOp = r ? corVerde : corVermelha;
 
-
-
     // Retorna a expressão perfeita combinando os estados de negação individuais (ex: (¬p ∧ q) )
-
     let str = `<span style="color:${corOp}">(</span><span style="color:${corA}">${rotuloP}</span><span style="color:${corOp}"> ${opSimbolo} </span><span style="color:${corB}">${rotuloQ}</span><span style="color:${corOp}">) = ${r ? 'V' : 'F'}</span>`;
-
     if(negGeralAtual) str = `<span style="color:${corOp}">¬</span>` + str;
-
    
-
     return str;
-
 }
 
 
@@ -1852,18 +1689,17 @@ function registrarExpressao(){
     let fatiaBase = pontos[id1].f;
     let resultadoText = calcularValorSemanticoExpressao() ? "V" : "F";
    
-    // CAPTURA CRÍTICA: Pegamos o texto limpo para validações e o HTML rico para a listagem visual
     let elementoDinamico = document.getElementById("expressao-dinamica");
     let rotuloTextoPuro = "Expressão";
     let exprHTML_Historico = "";
 
+    // CORREÇÃO CIRÚRGICA: Captura fielmente o HTML idêntico da tela para não desconfigurar nenhuma cor interna
     if (elementoDinamico) {
-        // Isola a parte da expressão antes do sinal de "="
-        let partesHTML = elementoDinamico.innerHTML.split(/=\s*(?:<[^>]+>)*[VF]/i);
-        exprHTML_Historico = partesHTML[0].replace(/^[A-Z]\.\s*/, '').trim();
-
-        // Guarda a versão em texto puro apenas para o validador de repetição (evita quebrar o 'jaExiste')
-        rotuloTextoPuro = elementoDinamico.innerText.split('=')[0].replace(/^[A-Z]\.\s*/, '').trim();
+        // Remove apenas o trecho final " = V" ou " = F" preservando intactas todas as cores de cada caractere
+        exprHTML_Historico = elementoDinamico.innerHTML.split(/\s*=\s*(?:<[^>]+>)*[VF]/i)[0].trim();
+        
+        // Guarda a versão em texto puro apenas para o validador de repetição
+        rotuloTextoPuro = elementoDinamico.innerText.split('=')[0].replace(/^[A-Z]\.\s*/, '').replace('[', '(').replace(']', ')').trim();
     } else {
         exprHTML_Historico = obterHTMLFormatadoParaHistorico();
         rotuloTextoPuro = exprHTML_Historico.replace(/<[^>]*>/g, '');
@@ -1898,16 +1734,14 @@ function registrarExpressao(){
 
     let item = document.createElement("div");
     item.className = "log-item";
-    item.style.cursor = "default"; // Alterado para seta padrão
+    item.style.cursor = "default"; // Seta padrão
     item.style.padding = "4px";
     item.style.borderBottom = "1px solid #333";
     
     // Renderiza o histórico aplicando a cor correta baseada no resultado V/F final do bloco
     let corResultado = resultadoText === "V" ? "#2ecc71" : "#e74c3c";
     item.innerHTML = `<b>${novo.letra}.</b> ${novo.textoHTML} = <b style="color:${corResultado}">${novo.valorGlobal}</b>`;
-   
-    // O EVENTO DE CLIQUE FOI REMOVIDO DAQUI TOTALMENTE
-
+    
     let logArea = document.getElementById("log-area");
     if(logArea) logArea.appendChild(item);
 }
@@ -2397,5 +2231,4 @@ function atualizarCamadasPorProposicoesSimples() {
     }
 
 } 
-
 
