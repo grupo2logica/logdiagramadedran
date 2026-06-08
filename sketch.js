@@ -2389,9 +2389,4 @@ function atualizarCamadasPorProposicoesSimples() {
 
 } 
 
-// Adicione isso no final do seu arquivo sketch.js
-function touchMoved() {
-  // Retornar true permite o comportamento de rolagem nativo do navegador
-  return true; 
-}
 
