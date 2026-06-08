@@ -400,34 +400,24 @@
             document.getElementById('info-box').style.display = 'none';
         }
 
-        // DESBLOQUEIO DE ROLAGEM GLOBAL (FORÇA BRUTA CONTRA O P5.JS)
-        (function() {
-            let touchStartY = 0;
-            let touchStartX = 0;
-
-            window.addEventListener('touchstart', function(e) {
-                touchStartY = e.touches[0].clientY;
-                touchStartX = e.touches[0].clientX;
-            }, { passive: true });
-
-            window.addEventListener('touchmove', function(e) {
-                let touchMoveY = e.touches[0].clientY;
-                let touchMoveX = e.touches[0].clientX;
-                
-                let diffY = Math.abs(touchStartY - touchMoveY);
-                let diffX = Math.abs(touchStartX - touchMoveX);
-
-                // Se o usuário mexer o dedo para rolar, impede o p5.js de interceptar o evento
-                if (diffY > 4 || diffX > 4) {
+        // DESIGNAÇÃO DE FORÇA MÁXIMA: Neutraliza qualquer bloqueio que venha do arquivo sketch.js externo
+        window.onload = function() {
+            window.touchMoved = function() { return true; };
+            window.touchStarted = function() { return true; };
+            
+            const canvasElement = document.querySelector('canvas');
+            if (canvasElement) {
+                canvasElement.addEventListener('touchmove', function(e) {
                     e.stopPropagation(); 
-                }
-            }, { passive: true });
-        })();
+                }, { passive: true });
+            }
+        };
+
+        window.addEventListener('touchmove', function(e) {
+            return true; 
+        }, { passive: true });
 
         document.addEventListener("DOMContentLoaded", function() {
-            // Garante que a função touchMoved do p5.js retorne true para liberar o scroll
-            window.touchMoved = function() { return true; };
-
             const mapearBotoesMovel = () => {
                 const botoes = document.querySelectorAll("button, .log-item");
                 botoes.forEach(botao => {
