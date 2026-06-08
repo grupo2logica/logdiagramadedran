@@ -2,8 +2,8 @@
 <html lang="pt-br">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+   <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Diagrama de Dran</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.0/p5.js"></script>
 
@@ -13,28 +13,25 @@
             -webkit-tap-highlight-color:transparent;
         }
 
-        html, body {
-            width: 100%;
-            overflow-x: hidden; 
-            overflow-y: auto;   
-            background:#000;
-            margin:0;
-            padding:0;
-            /* Melhora o comportamento de rolagem e deslize no celular */
-            -webkit-overflow-scrolling: touch;
-            scroll-behavior: smooth;
-        }
+       html, body {
+    width: 100%;
+    background: #000;
+    margin: 0;
+    padding: 0;
+}
 
-        body{
-            padding:10px;
-            color:white;
-            font-family:'Segoe UI',sans-serif;
-            display:flex;
-            flex-direction:column;
-            align-items:center;
-            min-height:100vh;
-        }
-
+body {
+    padding: 10px;
+    color: white;
+    font-family: 'Segoe UI', sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 100vh;
+    /* A rolagem deve ficar ativa nativamente aqui */
+    overflow-y: scroll; 
+    -webkit-overflow-scrolling: touch;
+}
         .container{
             width:100%;
             max-width:1250px;
