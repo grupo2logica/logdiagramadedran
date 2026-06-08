@@ -1874,7 +1874,7 @@ function registrarExpressao(){
         numero: historicoResultados.length + 1,
         letra: letraComposta,
         rotuloTextoPuro: rotuloTextoPuro,
-        rotuloOriginal: exprHTML_Historico, // Agora guarda o HTML colorido e exato da tela!
+        rotuloOriginal: exprHTML_Historico, 
         textoHTML: exprHTML_Historico,
         valorGlobal: resultadoText,
         operacaoOrigem: operacao,
@@ -1887,7 +1887,7 @@ function registrarExpressao(){
 
     let item = document.createElement("div");
     item.className = "log-item";
-    item.style.cursor = "pointer";
+    item.style.cursor = "default"; // Alterado para seta padrão
     item.style.padding = "4px";
     item.style.borderBottom = "1px solid #333";
     
@@ -1895,9 +1895,7 @@ function registrarExpressao(){
     let corResultado = resultadoText === "V" ? "#2ecc71" : "#e74c3c";
     item.innerHTML = `<b>${novo.letra}.</b> ${novo.textoHTML} = <b style="color:${corResultado}">${novo.valorGlobal}</b>`;
    
-    item.addEventListener("click", () => {
-        trazerCompostaParaDiagrama(novo);
-    });
+    // O EVENTO DE CLIQUE FOI REMOVIDO DAQUI TOTALMENTE
 
     let logArea = document.getElementById("log-area");
     if(logArea) logArea.appendChild(item);
