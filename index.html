@@ -13,7 +13,6 @@
             -webkit-tap-highlight-color:transparent;
         }
 
-        /* CORREÇÃO 2: Removido o overflow restrito do html e body que quebrava o scroll no mobile */
         html {
             width: 100%;
             background:#000;
@@ -32,8 +31,7 @@
             min-height:100vh;
             background:#000;
             margin:0;
-            /* Força a rolagem vertical a ficar ativa e fluida no body */
-            overflow-y: auto;
+            overflow-y: auto !important;
             -webkit-overflow-scrolling: touch;
             scroll-behavior: smooth;
         }
@@ -63,7 +61,6 @@
         }
 
         #canvas-container canvas {
-            /* CORREÇÃO 3: Força o canvas do p5.js a liberar os gestos do navegador */
             touch-action: auto !important;
             max-width: 100% !important;
             height: auto !important;
@@ -403,12 +400,33 @@
             document.getElementById('info-box').style.display = 'none';
         }
 
-        // CORREÇÃO FINAL NO SCRIPT: Mapeamento híbrido perfeito.
+        // DESBLOQUEIO DE ROLAGEM GLOBAL (FORÇA BRUTA CONTRA O P5.JS)
+        (function() {
+            let touchStartY = 0;
+            let touchStartX = 0;
+
+            window.addEventListener('touchstart', function(e) {
+                touchStartY = e.touches[0].clientY;
+                touchStartX = e.touches[0].clientX;
+            }, { passive: true });
+
+            window.addEventListener('touchmove', function(e) {
+                let touchMoveY = e.touches[0].clientY;
+                let touchMoveX = e.touches[0].clientX;
+                
+                let diffY = Math.abs(touchStartY - touchMoveY);
+                let diffX = Math.abs(touchStartX - touchMoveX);
+
+                // Se o usuário mexer o dedo para rolar, impede o p5.js de interceptar o evento
+                if (diffY > 4 || diffX > 4) {
+                    e.stopPropagation(); 
+                }
+            }, { passive: true });
+        })();
+
         document.addEventListener("DOMContentLoaded", function() {
-            // CORREÇÃO 4: Força global para que o p5.js não roube os gestos de touch no navegador
-            if (typeof window.touchMoved === 'undefined') {
-                window.touchMoved = function() { return true; };
-            }
+            // Garante que a função touchMoved do p5.js retorne true para liberar o scroll
+            window.touchMoved = function() { return true; };
 
             const mapearBotoesMovel = () => {
                 const botoes = document.querySelectorAll("button, .log-item");
@@ -416,24 +434,22 @@
                     if (!botao.dataset.touchMapeado) {
                         botao.dataset.touchMapeado = "true";
                         
-                        let touchStartY = 0;
-                        let touchStartX = 0;
+                        let startY = 0;
+                        let startX = 0;
 
                         botao.addEventListener("touchstart", function(e) {
-                            touchStartY = e.touches[0].clientY;
-                            touchStartX = e.touches[0].clientX;
+                            startY = e.touches[0].clientY;
+                            startX = e.touches[0].clientX;
                         }, { passive: true });
 
                         botao.addEventListener("touchend", function(e) {
-                            let touchEndY = e.changedTouches[0].clientY;
-                            let touchEndX = e.changedTouches[0].clientX;
+                            let endY = e.changedTouches[0].clientY;
+                            let endX = e.changedTouches[0].clientX;
                             
-                            // Se o usuário arrastou o dedo (X ou Y) mais de 8px, ignora o clique e deixa rolar
-                            if (Math.abs(touchStartY - touchEndY) > 8 || Math.abs(touchStartX - touchEndX) > 8) {
+                            if (Math.abs(startY - endY) > 8 || Math.abs(startX - endX) > 8) {
                                 return; 
                             }
 
-                            // Dispara o clique instantâneo se foi um toque parado
                             e.preventDefault();
                             if (botao.onclick) {
                                 botao.onclick();
