@@ -2,8 +2,8 @@
 <html lang="pt-br">
 
 <head>
-   <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Diagrama de Dran</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.0/p5.js"></script>
 
@@ -13,25 +13,31 @@
             -webkit-tap-highlight-color:transparent;
         }
 
-       html, body {
-    width: 100%;
-    background: #000;
-    margin: 0;
-    padding: 0;
-}
+        /* CORREÇÃO 2: Removido o overflow restrito do html e body que quebrava o scroll no mobile */
+        html {
+            width: 100%;
+            background:#000;
+            margin:0;
+            padding:0;
+        }
 
-body {
-    padding: 10px;
-    color: white;
-    font-family: 'Segoe UI', sans-serif;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    min-height: 100vh;
-    /* A rolagem deve ficar ativa nativamente aqui */
-    overflow-y: scroll; 
-    -webkit-overflow-scrolling: touch;
-}
+        body{
+            width: 100%;
+            padding:10px;
+            color:white;
+            font-family:'Segoe UI',sans-serif;
+            display:flex;
+            flex-direction:column;
+            align-items:center;
+            min-height:100vh;
+            background:#000;
+            margin:0;
+            /* Força a rolagem vertical a ficar ativa e fluida no body */
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            scroll-behavior: smooth;
+        }
+
         .container{
             width:100%;
             max-width:1250px;
@@ -57,8 +63,8 @@ body {
         }
 
         #canvas-container canvas {
-            /* Permite rolagem na vertical mesmo se o usuário arrastar o dedo por cima do canvas */
-            touch-action: pan-y;
+            /* CORREÇÃO 3: Força o canvas do p5.js a liberar os gestos do navegador */
+            touch-action: auto !important;
             max-width: 100% !important;
             height: auto !important;
         }
@@ -95,7 +101,6 @@ body {
             transition:.2s;
             padding:14px 8px; 
             font-size:15px;
-            /* Impede seleção acidental de texto ao tocar repetidamente no mobile */
             user-select: none;
             -webkit-user-select: none;
         }
@@ -378,7 +383,7 @@ body {
                     <button class="learn-item" onclick="mostrarInfo('Proposições Simples','Uma proposição simples é uma afirmação que possui apenas dois valores lógicos possíveis:\n\nVerdadeiro (V)\nou\nFalso (F).\n\nNo Diagrama de Dran, P e Q representam as proposições simples fundamentais.\n\nCada proposição ocupa uma posição estrutural dentro do diagrama.\n\nOs quadrantes possuem valores lógicos fixos:\n\nQ1 = Verdadeiro\nQ2 = Falso\nQ3 = Verdadeiro\nQ4 = Falso.')">Proposições simples</button>
                     <button class="learn-item" onclick="mostrarInfo('Conectivos Lógicos','∧  Conjunção (E)\nV apenas quando ambas forem verdadeiras.\n\n∨  Disjunção (OU)\nF apenas quando ambas forem falsas.\n\n→  Condicional\nF apenas quando V → F.\n\n↔  Bicondicional\nV quando ambas possuem o mesmo valor lógico.\n\n⊻  Disjunção Exclusiva\nV quando apenas uma é verdadeira.')">Conectivos</button>
                     <button class="learn-item" onclick="mostrarInfo('Negações','NEGAR PROPOSIÇÕES SIMPLES:\n\n¬(P) ⇔ ¬P\n\nA negação inverte o valor lógico da proposição.\n\n\nLEI DE MORGAN:\n\n¬(P ∧ Q) ⇔ (¬P ∨ ¬Q)\n\n¬(P ∨ Q) ⇔ (¬P ∧ ¬Q)\n\n\nNEGAÇÃO DA CONDICIONAL:\n\n¬(P → Q) ⇔ (P ∧ ¬Q)\n\n\nNEGAÇÃO DA BICONDICIONAL:\n\n¬(P ↔ Q) ⇔ (P ⊻ Q)\n\n\nNEGAÇÃO DA DISJUNÇÃO EXCLUSIVA:\n\n¬(P ⊻ Q) ⇔ (P ↔ Q)\n\n\nO botão ¬ altera a negação manual.\n\nO botão ¬(Expressão Completa) aplica automaticamente equivalências estruturais.')">Negações</button>
-                    <button class="learn-item" onclick="mostrarInfo('Camadas do Diagrama','As camadas representam níveis estruturais no diagrama. Nelas surgem os trajetos responsáveis por demonstrar as variáveis da proposição situada no diagrama. A camada central é reservada para organização estrutural e não pode iniciar proposições.')">Camadas</button>
+                    <button class="learn-item" onclick="mostrarInfo('Camadas do Diagrama','As camadas representam níveis estruturais no diagrama. Nelas surgem os trajetos responsáveis por demonstrar as variáveis da proposição situada no diagrama. A camada central é reservada para organization estrutural e não pode iniciar proposições.')">Camadas</button>
                     <button class="learn-item" onclick="mostrarInfo('Botões de Limpeza','Limpar Diagrama:\n\nRemove todas as proposições do diagrama atual.\n\n\nLimpar Histórico:\n\nRemove todas as expressões registradas.')">Botões de limpeza</button>
                     <button class="learn-item" onclick="mostrarInfo('Registro de Expressões','Registrar Expressão salva a expressão lógica atual no histórico.\n\nArmazene e avalie seus resultados instantaneamente na listagem.')">Registro de expressões</button>
                 </div>
@@ -398,17 +403,39 @@ body {
             document.getElementById('info-box').style.display = 'none';
         }
 
-        // SCRIPT COMPLEMENTAR DE TOUCH: Vincula toques instantâneos nos botões sem quebrar cliques de desktop
+        // CORREÇÃO FINAL NO SCRIPT: Mapeamento híbrido perfeito.
         document.addEventListener("DOMContentLoaded", function() {
+            // CORREÇÃO 4: Força global para que o p5.js não roube os gestos de touch no navegador
+            if (typeof window.touchMoved === 'undefined') {
+                window.touchMoved = function() { return true; };
+            }
+
             const mapearBotoesMovel = () => {
                 const botoes = document.querySelectorAll("button, .log-item");
                 botoes.forEach(botao => {
                     if (!botao.dataset.touchMapeado) {
                         botao.dataset.touchMapeado = "true";
+                        
+                        let touchStartY = 0;
+                        let touchStartX = 0;
+
                         botao.addEventListener("touchstart", function(e) {
-                            // Executa imediatamente o clique nativo ou inline sem os 300ms de delay móvel
+                            touchStartY = e.touches[0].clientY;
+                            touchStartX = e.touches[0].clientX;
+                        }, { passive: true });
+
+                        botao.addEventListener("touchend", function(e) {
+                            let touchEndY = e.changedTouches[0].clientY;
+                            let touchEndX = e.changedTouches[0].clientX;
+                            
+                            // Se o usuário arrastou o dedo (X ou Y) mais de 8px, ignora o clique e deixa rolar
+                            if (Math.abs(touchStartY - touchEndY) > 8 || Math.abs(touchStartX - touchEndX) > 8) {
+                                return; 
+                            }
+
+                            // Dispara o clique instantâneo se foi um toque parado
+                            e.preventDefault();
                             if (botao.onclick) {
-                                e.preventDefault(); // Evita o disparo duplo (touchstart + click)
                                 botao.onclick();
                             } else {
                                 botao.click();
@@ -420,7 +447,6 @@ body {
 
             mapearBotoesMovel();
 
-            // Monitora dinamicamente a inclusão de itens no Histórico para aplicar o touch instantâneo neles também
             const observadorLog = new MutationObserver(() => {
                 mapearBotoesMovel();
             });
